@@ -2,16 +2,24 @@ pipeline {
     agent any
 
     environment {
-        SRN = "PES1UG21CS553" // Replace with your actual SRN
+        // Optional: Set your SRN if you need to use it within the pipeline
+        // SRN = "YOUR_SRN"
     }
 
     stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                   credentialsId: 'PES1202101779', # Replace with your credentials ID
+                   url: 'https://github.com/SharanyaPatil/PES1UG21CS553_Jenkins' # Replace with your repository details
+            }
+        }
         stage('Build') {
             steps {
                 script {
-                    // Build command using environment variable for SRN
+                    // Build command with warnings and error handling
                     sh """
-                        g++ -o ${env.SRN}-1 test.cpp || echo "Build failed!"
+                        g++ -o my_executable main.cpp -Wall -Wextra || echo "Build failed!"
                     """
                 }
             }
@@ -20,14 +28,14 @@ pipeline {
             steps {
                 script {
                     // Test command using the executable name
-                    sh "./${env.SRN}-1"
+                    sh './my_executable'
                 }
             }
         }
         stage('Deploy') {
             steps {
                 // Add your deployment commands here
-                echo 'Deployment not implemented yet.'
+                echo "Deployment not implemented yet."
             }
         }
     }
@@ -38,4 +46,3 @@ pipeline {
         }
     }
 }
-
