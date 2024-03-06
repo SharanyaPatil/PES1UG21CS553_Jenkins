@@ -1,38 +1,42 @@
 pipeline {
-  agent any
-
-  stages {
-    stage('Build') {
-      steps {
-        sh 'mvn clean install' 
-        echo'Build stage Successful'// Replace YOUR_SRN-1 with your actual file name.
-      }
-    }
-    stage('Test') {
-      steps {
-        sh 'mvn test'
-         echo'Test stage Successful'
-        post{
-          always{
-            junit 'target/surefire-reports/*.xml'
+    agent any
+    stages {
+        stage('Clone repository'){
+          steps{
+            checkout([$class: 'GitSCM',
+            branches: [[name: '*/main']],
+            userRemoteConfigs: [[url: 'https://github.com/SharanyaPatil/PES1UG21CS553_Jenkins']]])
           }
         }
-        // Change the command if your output is different.
-      }
+        stage('Build') {
+            steps {
+                script {
+                  build 'PES1UG21CS553'
+                    sh 'g++ main.cpp -o output' 
+                    
+                }
+            }
+        }
+        stage('Test') {
+            steps {
+                script {
+                    sh './OUTPUT'
+                  
+                }
+            }
+        }
+        stage('Deploy') {
+            steps {
+                script {
+                    echo 'Deployment not implemented yet.'
+                }
+            }
+        }
     }
-    stage('Deploy') {
-      steps{
-        sh 'mvn deploy'
-        echo 'Deployment Successful'
-      // Add your deployment commands here (e.g., copy to server)
-    }
-    }
-  }
 
-  post {
-    failure {
-      echo 'Pipeline failed!'
+    post {
+        failure {
+            echo "Pipeline failed!"
+        }
     }
-  }
 }
-
